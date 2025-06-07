@@ -1,0 +1,46 @@
+# Node
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Misc
+.env
+.env.*
+coverage/
+
+# React
+*.local
+
+# Mac
+.DS_Store
+
+# Test
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Others
+*.log
+
+# Ignore production build
+my-react-project/build/
