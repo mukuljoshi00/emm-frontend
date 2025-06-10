@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../api/Api';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,25 +15,14 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Call /api/v1/auth/login
-      const response = await fetch('http://localhost:8080/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!response.ok) {
-        throw new Error('Invalid email or password');
-      }
-
-      const data = await response.json();
+      // Use centralized login API
+      const data = await login(email, password);
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('isAuthenticated', 'true');
         // Decode JWT to check role
         const payload = JSON.parse(atob(data.token.split('.')[1]));
         if (payload.role === 'SUPER_ADMIN') {
-          // Mark role in localStorage for dashboard use
           localStorage.setItem('userRole', 'SUPER_ADMIN');
         } else {
           localStorage.setItem('userRole', payload.role || '');

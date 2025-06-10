@@ -104,4 +104,16 @@ export async function fetchDeviceLocation(serialNumber: string): Promise<{ lat: 
   }
 }
 
+export async function login(email: string, password: string) {
+  const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  if (!response.ok) {
+    throw new Error('Invalid email or password');
+  }
+  return response.json();
+}
+
 // Add more API functions here as needed, e.g. for login, organizations, policies, etc.
