@@ -1,0 +1,292 @@
+/* DeviceList.module.css - extracted styles from DeviceList.tsx */
+
+.deviceListRoot {
+  text-align: left;
+  background: #f8fafd;
+  min-height: 100vh;
+  padding: 0 0 3rem 0;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+
+.deviceListContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.deviceListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.deviceListTitle {
+  color: #1a1c1e;
+  margin: 0;
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: 0.1px;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+.addDeviceBtn {
+  background: linear-gradient(90deg, #00796b 0%, #80cbc4 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  width: 160px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 4px 16px rgba(0,121,107,0.18);
+  cursor: pointer;
+  outline: none;
+  transition: box-shadow 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+  margin-left: 12px;
+  margin-right: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.addDeviceBtn:disabled {
+  cursor: not-allowed;
+}
+
+.fabRipple {
+  position: absolute;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  top: 0; left: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, #fff6 10%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.addDeviceBtn:active .fabRipple {
+  opacity: 1;
+  transition: opacity 0.1s;
+}
+.fabPressed {
+  animation: fabScale 0.18s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fabScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
+.qrSuccessCheck {
+  animation: checkPop 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+}
+@keyframes checkPop {
+  0% { opacity: 0; transform: scale(0.7) translateY(20px); }
+  60% { opacity: 1; transform: scale(1.1) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.deviceListCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin-top: 2rem;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0 4px;
+}
+
+.deviceCard {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 2px 8px 0 #1a1c1e0d, 0 6px 24px 0 #1a1c1e14;
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  min-width: 340px;
+  max-width: 440px;
+  flex: 1 1 340px;
+  margin-bottom: 2rem;
+  border: 1.5px solid #b2dfdb;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  animation: cardPop 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+  transition: box-shadow 0.2s, transform 0.2s;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+@keyframes cardPop {
+  0% { opacity: 0; transform: scale(0.95) translateY(30px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.accentBar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background: linear-gradient(180deg, #00796b 0%, #80cbc4 100%);
+  border-radius: 28px 0 0 28px;
+  box-shadow: 0 0 16px #80cbc444;
+  animation: accentBarSlide 1.2s cubic-bezier(.68,-0.55,.27,1.55);
+}
+@keyframes accentBarSlide {
+  0% { height: 0; }
+  100% { height: 100%; }
+}
+
+.deviceCardHeader {
+  border-bottom: 1.5px solid #b2dfdb;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  font-weight: 600;
+  font-size: 19px;
+  color: #004d40;
+  letter-spacing: 0.1px;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+  justify-content: space-between;
+  background: rgba(224,242,241,0.7);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px #80cbc422;
+  animation: fadeIn 1s;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.deviceCardHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.deviceCardHeaderDevice {
+  font-size: 22px;
+  color: #00796b;
+  font-weight: 700;
+  text-shadow: 0 2px 8px #80cbc433;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardHeaderModel {
+  font-weight: 600;
+  font-size: 18px;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.deviceCardHeaderStatus {
+  color: #00695c;
+  font-weight: 500;
+  font-size: 15px;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+  white-space: nowrap;
+}
+.deviceCardHeaderStatusDot {
+  font-size: 16px;
+  color: #00796b;
+  margin-right: 4px;
+}
+
+.deviceCardInfo {
+  margin-bottom: 14px;
+  animation: fadeInUp 1.2s;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.deviceCardInfoLabel {
+  color: #49454f;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.deviceCardInfoValue {
+  font-weight: 400;
+  color: #00796b;
+}
+
+.deviceCardTableTitle {
+  color: #00796b;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #e0f2f1;
+  border-radius: 10px;
+  box-shadow: 0 1px 8px #80cbc422;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardTableTh {
+  text-align: left;
+  padding: 7px 10px;
+  color: #004d40;
+  font-weight: 700;
+  font-size: 15px;
+  border-bottom: 1px solid #b2dfdb;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardTableTd {
+  padding: 7px 10px;
+  font-size: 15px;
+}
+
+.deviceCardAppTitle {
+  color: #00897b;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardAppTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #e0f7fa;
+  border-radius: 10px;
+  box-shadow: 0 1px 8px #b2ebf222;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardAppTh {
+  text-align: left;
+  padding: 7px 10px;
+  color: #00897b;
+  font-weight: 700;
+  font-size: 15px;
+  border-bottom: 1px solid #e0f7fa;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}
+.deviceCardAppTd {
+  padding: 7px 10px;
+  font-size: 15px;
+}
+
+.deviceListNoDevices {
+  color: #888;
+  text-align: left;
+  font-size: 20px;
+  margin: 2rem 0;
+  font-weight: 500;
+  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+}

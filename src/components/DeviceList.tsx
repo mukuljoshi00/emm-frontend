@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { fetchDevices, fetchEnrollmentToken, fetchDeviceLocation } from '../api/Api';
+import styles from './DeviceList.module.css';
 
 interface DeviceListProps {
   enterpriseName: string;
@@ -12,43 +14,54 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [qrError, setQrError] = useState('');
   const [qrLoading, setQrLoading] = useState(false);
+  const [fabPressed, setFabPressed] = useState(false);
+  const [showQrSuccess, setShowQrSuccess] = useState(false);
+  const [deviceLocations, setDeviceLocations] = useState<Record<string, { latitude: number; longitude: number } | null>>({});
+  const [locationLoading, setLocationLoading] = useState<Record<string, boolean>>({});
+  const [locationVisible, setLocationVisible] = useState<Record<string, boolean>>({});
+  const qrTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!enterpriseName || !token) return;
     setLoading(true);
     setError('');
-    fetch(`http://localhost:8080/api/enterprise/devices?enterpriseName=${encodeURIComponent(enterpriseName)}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-      },
-      credentials: 'include',
-      mode: 'cors',
-    })
-      .then(res => res.ok ? res.json() : Promise.reject('Failed to fetch devices'))
+    fetchDevices(enterpriseName, token)
       .then(data => setDevices(Array.isArray(data) ? data : []))
       .catch(err => setError(typeof err === 'string' ? err : err.message))
       .finally(() => setLoading(false));
   }, [enterpriseName, token]);
 
+  useEffect(() => {
+    if (!devices) return;
+    // Fetch location for each device serial number
+    devices.forEach(device => {
+      const serial = device.hardwareInfo && device.hardwareInfo.serialNumber;
+      if (serial) {
+        fetchDeviceLocation(serial).then(loc => {
+          console.log('API returned for serial', serial, ':', loc);
+          setDeviceLocations(prev => ({ ...prev, [serial]: loc }));
+        });
+      }
+    });
+    // Debug: log the full deviceLocations object after each devices update
+    console.log('Current deviceLocations state:', deviceLocations);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devices]);
+
   const handleAddDevice = async () => {
+    setFabPressed(true);
+    setTimeout(() => setFabPressed(false), 180); // Animation duration
     setQrLoading(true);
     setQrError('');
     setQrCode(null);
+    setShowQrSuccess(false);
     try {
-      const res = await fetch(`http://localhost:8080/api/enterprise/enrollment-token?enterpriseName=${encodeURIComponent(enterpriseName)}&policyName=policy1`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'image/png',
-        },
-        credentials: 'include',
-        mode: 'cors',
-      });
-      if (!res.ok) throw new Error('Failed to get QR code');
-      const blob = await res.blob();
+      const blob = await fetchEnrollmentToken(enterpriseName, token, 'policy1');
       if (blob.type.startsWith('image/')) {
         setQrCode(URL.createObjectURL(blob));
+        setShowQrSuccess(true);
+        if (qrTimeoutRef.current) clearTimeout(qrTimeoutRef.current);
+        qrTimeoutRef.current = setTimeout(() => setShowQrSuccess(false), 1800);
       } else {
         setQrError('No QR code image received');
       }
@@ -62,76 +75,205 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
   if (!enterpriseName) return null;
 
   return (
-    <div style={{ textAlign: 'left' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h3 style={{ color: '#1976d2', margin: 0 }}>Devices</h3>
-        <button
-          style={{
-            background: '#1976d2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            padding: '0.6rem 1.5rem',
-            fontWeight: 600,
-            fontSize: 16,
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(25, 118, 210, 0.08)'
-          }}
-          onClick={handleAddDevice}
-          disabled={qrLoading}
-        >
-          {qrLoading ? 'Generating...' : '+ Add Device'}
-        </button>
-      </div>
-      {qrError && <p style={{ color: 'red' }}>{qrError}</p>}
-      {qrCode && (
-        <div style={{ margin: '2rem 0', textAlign: 'center' }}>
-          <img src={qrCode} alt="Enrollment QR Code" style={{ maxWidth: 320, maxHeight: 320, marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(44,62,80,0.08)' }} />
-          <div style={{ color: '#374151', fontSize: 17, marginTop: 8 }}>
-            Please scan this QR from your device to register it with the organization.
-          </div>
+    <div className={styles.deviceListRoot}>
+      <div className={styles.deviceListContainer}>
+        <div className={styles.deviceListHeader} style={{ paddingTop: 24, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 className={styles.deviceListTitle} style={{ paddingTop: 8, textAlign: 'left', margin: 0 }}>Devices</h3>
+          <button
+            className={`${styles.addDeviceBtn} ${fabPressed ? styles.fabPressed : ''}`}
+            onClick={handleAddDevice}
+            disabled={qrLoading}
+            aria-label="Add Device"
+          >
+            <span style={{ fontSize: 18, fontWeight: 700, color: '#fff', userSelect: 'none', letterSpacing: 0.5, fontFamily: 'Inter, Roboto, "Segoe UI", Arial, sans-serif' }}>Add Device</span>
+            {/* Ripple effect */}
+            <span className={styles.fabRipple} />
+          </button>
         </div>
-      )}
-      {loading && <p>Loading devices...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {devices && devices.length > 0 ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginTop: '1.5rem' }}>
-          {devices.map((device, idx) => (
-            <div key={device.id || idx} style={{
-              background: '#fff',
-              borderRadius: 10,
-              boxShadow: '0 2px 8px rgba(44,62,80,0.08)',
-              padding: '2.5rem',
-              minWidth: 480,
-              maxWidth: 700,
-              flex: '1 1 480px',
-              marginBottom: '1rem',
-              overflowX: 'auto',
-            }}>
-              <div style={{
-                borderBottom: '1px solid #e0e0e0',
-                marginBottom: 16,
-                paddingBottom: 10,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 24,
-                fontWeight: 600,
-                fontSize: 18,
-                color: '#1976d2',
-              }}>
-                <span>Model: {device.model || '-'}</span>
-                <span style={{ color: '#374151', fontWeight: 400, fontSize: 15 }}>
-                  Enrollment Time: {device.enrollmentTime ? new Date(device.enrollmentTime).toLocaleString() : '-'}
-                </span>
+        {qrError && <p style={{ color: '#b3261e', fontWeight: 500 }}>{qrError}</p>}
+        {qrCode && (
+          <div style={{ margin: '2rem 0', textAlign: 'center', position: 'relative' }}>
+            {showQrSuccess && (
+              <div className={styles.qrSuccessCheck} style={{ position: 'absolute', left: 0, right: 0, top: '-60px', margin: '0 auto', width: 48, zIndex: 2, display: 'flex', justifyContent: 'center' }}>
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="22" fill="#00c853" opacity="0.15" />
+                  <circle cx="24" cy="24" r="20" fill="#00c853" opacity="0.25" />
+                  <path d="M16 25l6 6 10-12" fill="none" stroke="#00c853" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </div>
-              <pre style={{ background: '#f3f4f6', padding: '1.5rem', borderRadius: 8, fontSize: 16, overflowX: 'auto', margin: 0 }}>{JSON.stringify(device, null, 2)}</pre>
+            )}
+            <img src={qrCode} alt="Enrollment QR Code" style={{ maxWidth: 320, maxHeight: 320, marginBottom: 16, borderRadius: 16, boxShadow: '0 2px 12px #6750a422' }} />
+            <div style={{ color: '#49454f', fontSize: 18, marginTop: 8, fontWeight: 500 }}>
+              Please scan this QR from your device to register it with the organization.
             </div>
-          ))}
-        </div>
-      ) : (!loading && !error && (
-        <p style={{ color: '#888', textAlign: 'left', fontSize: 18, margin: '2rem 0' }}>No devices found.</p>
-      ))}
+          </div>
+        )}
+        {loading && <p style={{ color: '#49454f', fontWeight: 500 }}>Loading devices...</p>}
+        {error && <p style={{ color: '#b3261e', fontWeight: 500 }}>{error}</p>}
+        {devices && devices.length > 0 ? (
+          <div className={styles.deviceListCards}>
+            {devices.map((device, idx) => {
+              // Get model and brand from hardwareInfo if available
+              let model = device.model || '-';
+              let brand = '';
+              if (device.hardwareInfo && typeof device.hardwareInfo === 'object') {
+                if (device.hardwareInfo.model) model = device.hardwareInfo.model;
+                if (device.hardwareInfo.brand) brand = device.hardwareInfo.brand;
+              }
+              const modelDisplay = brand ? `${brand} ${model}` : model;
+              return (
+                <div key={device.id || idx} className={styles.deviceCard}>
+                  {/* Accent Bar */}
+                  <div className={styles.accentBar} />
+                  {/* Header Section */}
+                  <div className={styles.deviceCardHeader}>
+                    <span className={styles.deviceCardHeaderTitle}>
+                      <span className={styles.deviceCardHeaderDevice}>devices</span>
+                      <span className={styles.deviceCardHeaderModel}>{modelDisplay}</span>
+                    </span>
+                    <span className={styles.deviceCardHeaderStatus}>
+                      <span className={styles.deviceCardHeaderStatusDot}>●</span>
+                      {device.state || '-'}
+                    </span>
+                  </div>
+                  {/* Info Section */}
+                  <div className={styles.deviceCardInfo}>
+                    <div className={styles.deviceCardInfoLabel}>
+                      Serial Number: <span className={styles.deviceCardInfoValue}>{device.hardwareInfo && device.hardwareInfo.serialNumber ? device.hardwareInfo.serialNumber : '-'}</span>
+                    </div>
+                    <div className={styles.deviceCardInfoLabel}>
+                      Last Policy Sync: <span className={styles.deviceCardInfoValue}>{device.lastPolicySyncTime ? new Date(device.lastPolicySyncTime).toLocaleString() : '-'}</span>
+                    </div>
+                    <div className={styles.deviceCardInfoLabel}>
+                      Last Status Report: <span className={styles.deviceCardInfoValue}>{device.lastStatusReportTime ? new Date(device.lastStatusReportTime).toLocaleString() : '-'}</span>
+                    </div>
+                    <div className={styles.deviceCardInfoLabel}>
+                      Ownership: <span className={styles.deviceCardInfoValue}>{device.ownership || '-'}</span>
+                    </div>
+                    <div className={styles.deviceCardInfoLabel}>
+                      Policy Name: <span className={styles.deviceCardInfoValue}>{device.policyName || '-'}</span>
+                    </div>
+                    <div className={styles.deviceCardInfoLabel}>
+                      Location: <span className={styles.deviceCardInfoValue}>
+                        {(() => {
+                          const serial = device.hardwareInfo && device.hardwareInfo.serialNumber;
+                          return (
+                            <>
+                              <button
+                                className={styles.locationIconBtn}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 6, verticalAlign: 'middle' }}
+                                title="Show on Map"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  if (!serial) return;
+                                  setLocationLoading(prev => ({ ...prev, [serial]: true }));
+                                  try {
+                                    // Always fetch the latest location from the API
+                                    const apiLoc = await fetchDeviceLocation(serial);
+                                    let normalizedLoc: { latitude: number; longitude: number } | null = null;
+                                    if (apiLoc && typeof (apiLoc as any).latitude === 'number' && typeof (apiLoc as any).longitude === 'number') {
+                                      normalizedLoc = { latitude: (apiLoc as any).latitude, longitude: (apiLoc as any).longitude };
+                                    } else if (apiLoc && typeof (apiLoc as any).lat === 'number' && typeof (apiLoc as any).long === 'number') {
+                                      normalizedLoc = { latitude: (apiLoc as any).lat, longitude: (apiLoc as any).long };
+                                    }
+                                    setDeviceLocations(prev => ({ ...prev, [serial]: normalizedLoc }));
+                                    setLocationVisible(prev => ({ ...prev, [serial]: true }));
+                                    if (normalizedLoc && typeof normalizedLoc.latitude === 'number' && typeof normalizedLoc.longitude === 'number') {
+                                      const url = `https://www.google.com/maps?q=${normalizedLoc.latitude},${normalizedLoc.longitude}`;
+                                      window.open(url, '_blank');
+                                    } else {
+                                      alert('Location not available.');
+                                    }
+                                  } finally {
+                                    setLocationLoading(prev => ({ ...prev, [serial]: false }));
+                                  }
+                                }}
+                                disabled={locationLoading[serial]}
+                              >
+                                {/* Map pin icon */}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#388e3c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M21 10.5a8.38 8.38 0 0 1-1.9 5.4c-1.5 2-4.1 4.6-6.1 6.1-2-1.5-4.6-4.1-6.1-6.1A8.38 8.38 0 0 1 3 10.5 8.5 8.5 0 0 1 12 2a8.5 8.5 0 0 1 9 8.5z" />
+                                  <circle cx="12" cy="10.5" r="3.5" />
+                                </svg>
+                              </button>
+                              {locationLoading[serial] && <span style={{ marginLeft: 8, color: '#009688', fontSize: 12 }}>Loading...</span>}
+                              {locationVisible[serial] && deviceLocations[serial] && (() => {
+                                const loc = deviceLocations[serial];
+                                if (loc && typeof loc.latitude === 'number' && typeof loc.longitude === 'number') {
+                                  return (
+                                    <span style={{ marginLeft: 8, color: '#009688', fontSize: 13, fontWeight: 500 }}>
+                                      {loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </>
+                          );
+                        })()}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Software Info Section */}
+                  {device.softwareInfo && Array.isArray(device.softwareInfo) && device.softwareInfo.length > 0 && (
+                    <div style={{ marginBottom: 14, animation: 'fadeInUp 1.3s' }}>
+                      <div className={styles.deviceCardTableTitle}>Software Info</div>
+                      <table className={styles.deviceCardTable}>
+                        <thead>
+                          <tr>
+                            <th className={styles.deviceCardTableTh}>Package</th>
+                            <th className={styles.deviceCardTableTh}>Version</th>
+                            <th className={styles.deviceCardTableTh}>State</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {device.softwareInfo.map((sw: any, i: number) => (
+                            <tr key={i}>
+                              <td className={styles.deviceCardTableTd}>{sw.packageName || '-'}</td>
+                              <td className={styles.deviceCardTableTd}>{sw.version || '-'}</td>
+                              <td className={styles.deviceCardTableTd}>{sw.state || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {/* Application Reports Section */}
+                  {device.applicationReports && Array.isArray(device.applicationReports) && device.applicationReports.length > 0 && (
+                    (() => {
+                      const userFacingApps = device.applicationReports.filter((app: any) => app.userFacingType === 'USER_FACING');
+                      if (userFacingApps.length === 0) return null;
+                      return (
+                        <div style={{ marginBottom: 12, animation: 'fadeInUp 1.4s' }}>
+                          <div className={styles.deviceCardAppTitle}>User Facing Applications</div>
+                          <table className={styles.deviceCardAppTable}>
+                            <thead>
+                              <tr>
+                                <th className={styles.deviceCardAppTh}>Display Name</th>
+                                <th className={styles.deviceCardAppTh}>State</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {userFacingApps.map((app: any, i: number) => (
+                                <tr key={i}>
+                                  <td className={styles.deviceCardAppTd}>{app.displayName || '-'}</td>
+                                  <td className={styles.deviceCardAppTd}>{app.state || '-'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })()
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (!loading && !error && (
+          <p className={styles.deviceListNoDevices}>No devices found.</p>
+        ))}
+      </div>
     </div>
   );
 };
