@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  frontend:
+    build: .
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL:-http://localhost:8085/api}
+    env_file:
+      - .env
