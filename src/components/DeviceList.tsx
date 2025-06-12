@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchDevices, fetchEnrollmentToken, fetchDeviceLocation } from '../api/Api';
+import { API_BASE_URL } from '../api/baseUrl';
 import styles from './DeviceList.module.css';
 
 interface DeviceListProps {
@@ -38,8 +39,14 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
       const serial = device.hardwareInfo && device.hardwareInfo.serialNumber;
       if (serial) {
         fetchDeviceLocation(serial).then(loc => {
-          console.log('API returned for serial', serial, ':', loc);
-          setDeviceLocations(prev => ({ ...prev, [serial]: loc }));
+          // Normalize location object to { latitude, longitude } or null
+          let normalizedLoc: { latitude: number; longitude: number } | null = null;
+          if (loc && typeof (loc as any).latitude === 'number' && typeof (loc as any).longitude === 'number') {
+            normalizedLoc = { latitude: (loc as any).latitude, longitude: (loc as any).longitude };
+          } else if (loc && typeof (loc as any).lat === 'number' && typeof (loc as any).long === 'number') {
+            normalizedLoc = { latitude: (loc as any).lat, longitude: (loc as any).long };
+          }
+          setDeviceLocations(prev => ({ ...prev, [serial]: normalizedLoc }));
         });
       }
     });
@@ -213,6 +220,54 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
                         })()}
                       </span>
                     </div>
+                    {/* Link Location Button Section - only show if location is empty and place just below location text */}
+                    {(() => {
+                      const serial = device.hardwareInfo && device.hardwareInfo.serialNumber;
+                      const loc = deviceLocations[serial];
+                      // Only show if location is truly missing (null or not a number)
+                      const hasLocation = loc && typeof loc.latitude === 'number' && typeof loc.longitude === 'number';
+                      if (!hasLocation) {
+                        // Extract only the enterpriseId from device.name (format: 'enterprises/{enterpriseId}/devices/{deviceId}')
+                        let enterpriseId = '';
+                        if (typeof device.name === 'string') {
+                          const match = device.name.match(/enterprises\/([^/]+)/);
+                          if (match) {
+                            enterpriseId = match[1];
+                          }
+                        }
+                        return (
+                          <div style={{ marginTop: 2, marginBottom: 0, display: 'flex', justifyContent: 'flex-start' }}>
+                            <button
+                              className={styles.addDeviceBtn}
+                              style={{ fontSize: 12, padding: '1px 4px', borderRadius: 4, fontWeight: 600, backgroundColor: '#1976d2', color: '#fff', border: 'none', minWidth: 0, marginLeft: 0, lineHeight: 1.2 }}
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch(`${API_BASE_URL}/enterprise/latest-enrolled-device?enterpriseName=enterprises%2F${encodeURIComponent(enterpriseId)}`,
+                                    { method: 'POST' });
+                                  if (!res.ok) throw new Error('Failed to link location');
+                                  alert('Location linked successfully');
+                                  // Immediately refetch and update the device location for this serial
+                                  const apiLoc = await fetchDeviceLocation(serial);
+                                  let normalizedLoc: { latitude: number; longitude: number } | null = null;
+                                  if (apiLoc && typeof (apiLoc as any).latitude === 'number' && typeof (apiLoc as any).longitude === 'number') {
+                                    normalizedLoc = { latitude: (apiLoc as any).latitude, longitude: (apiLoc as any).longitude };
+                                  } else if (apiLoc && typeof (apiLoc as any).lat === 'number' && typeof (apiLoc as any).long === 'number') {
+                                    normalizedLoc = { latitude: (apiLoc as any).lat, longitude: (apiLoc as any).long };
+                                  }
+                                  setDeviceLocations(prev => ({ ...prev, [serial]: normalizedLoc }));
+                                } catch (err: any) {
+                                  alert('Failed to link location: ' + (err.message || err));
+                                }
+                              }}
+                              type="button"
+                            >
+                              Link Location
+                            </button>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                   {/* Software Info Section */}
                   {device.softwareInfo && Array.isArray(device.softwareInfo) && device.softwareInfo.length > 0 && (
@@ -266,6 +321,43 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
                       );
                     })()
                   )}
+                  {/* Unlink Device Button Section */}
+                  <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      className={styles.addDeviceBtn}
+                      style={{ fontSize: 13, padding: '4px 12px', borderRadius: 6, fontWeight: 600, backgroundColor: '#b3261e', color: '#fff', border: 'none', minWidth: 0, marginLeft: 0, lineHeight: 1.2 }}
+                      onClick={async () => {
+                        // Parse enterpriseId and deviceId from device.name (format: 'enterprises/{enterpriseId}/devices/{deviceId}')
+                        let enterpriseId = '';
+                        let deviceId = '';
+                        if (typeof device.name === 'string') {
+                          const match = device.name.match(/enterprises\/(.+?)\/devices\/(.+)/);
+                          if (match) {
+                            enterpriseId = match[1];
+                            deviceId = match[2];
+                          }
+                        }
+                        if (!enterpriseId || !deviceId) {
+                          alert('Missing enterprise or device ID');
+                          return;
+                        }
+                        if (!window.confirm('Are you sure you want to unlink this device?')) return;
+                        try {
+                          const res = await fetch(`${API_BASE_URL}/enterprise/${encodeURIComponent(enterpriseId)}/${encodeURIComponent(deviceId)}`, {
+                            method: 'DELETE',
+                          });
+                          if (!res.ok) throw new Error('Failed to unlink device');
+                          alert('Device unlinked successfully');
+                          setDevices(devices => devices ? devices.filter(d => d.id !== device.id) : devices);
+                        } catch (err: any) {
+                          alert('Failed to unlink device: ' + (err.message || err));
+                        }
+                      }}
+                      type="button"
+                    >
+                      Unlink Device
+                    </button>
+                  </div>
                 </div>
               );
             })}
