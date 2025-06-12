@@ -27,8 +27,20 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
     setLoading(true);
     setError('');
     fetchDevices(enterpriseName, token)
-      .then(data => setDevices(Array.isArray(data) ? data : []))
-      .catch(err => setError(typeof err === 'string' ? err : err.message))
+      .then(data => {
+        // If API returns no data, empty array, or falsy, treat as no devices
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+          setDevices([]);
+        } else if (Array.isArray(data)) {
+          setDevices(data);
+        } else {
+          setDevices([]);
+        }
+      })
+      .catch(() => {
+        setDevices([]); // On any error, treat as no devices
+        setError('');
+      })
       .finally(() => setLoading(false));
   }, [enterpriseName, token]);
 
