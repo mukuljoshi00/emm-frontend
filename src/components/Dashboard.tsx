@@ -6,6 +6,7 @@ import PolicyManagement from './PolicyManagement';
 import EnterpriseList from './EnterpriseList';
 import { fetchOrgs, fetchMyOrg } from '../api/Api';
 import styles from './Dashboard.module.css';
+import PolicyUITab from './PolicyUITab';
 
 interface Organization {
   id: string;
@@ -81,8 +82,14 @@ const Dashboard: React.FC = () => {
                 onClick={() => setActiveTab('policies')}
                 className={activeTab === 'policies' ? styles.tabActive : styles.tab}
               >Policies</span>
-              <span className={styles.tab}>Users</span>
-            </>
+              <span
+                onClick={() => setActiveTab('policyui')}
+                className={activeTab === 'policyui' ? styles.tabActive : styles.tab}
+              >Policy UI</span>
+            <span
+                onClick={() => setActiveTab('users')}
+                className={activeTab === 'users' ? styles.tabActive : styles.tab}
+              >Users</span>            </>
           )}
         </nav>
         <span className={styles.userInfo}>
@@ -100,6 +107,12 @@ const Dashboard: React.FC = () => {
         )}
         {!isSuperAdmin && activeTab === 'policies' && orgs && orgs[0]?.enterpriseName && token && (
           <PolicyManagement org={orgs[0]} token={token} />
+        )}
+        {!isSuperAdmin && activeTab === 'policyui' && (
+          <PolicyUITab />
+        )}
+        {!isSuperAdmin && activeTab === 'users' && (
+          <PolicyUITab />
         )}
       </main>
     </div>

@@ -8,5 +8,6 @@ declare const styles: {
   tabSuperAdmin: string;
   userInfo: string;
   logoutBtn: string;
+  policyUiHeader: string;
 };
 export default styles;

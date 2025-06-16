@@ -73,3 +73,11 @@
 .logoutBtn:hover {
   background: linear-gradient(90deg, #43a047 60%, #009688 100%);
 }
+.policyUiHeader {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1976d2;
+  margin-left: 24px;
+  letter-spacing: 0.5px;
+  align-self: center;
+}
