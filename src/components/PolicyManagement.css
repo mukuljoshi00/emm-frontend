@@ -1,0 +1,362 @@
+/* Base styles for the container */
+.policy-management-container {
+    max-width: 960px;
+    margin: 24px auto;
+    padding: 24px;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+
+/* Header styles */
+.policy-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.policy-management-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.policy-management-save-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.policy-management-save-button:hover:not(:disabled) {
+    background-color: #1d4ed8;
+}
+
+.policy-management-save-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Status messages */
+.policy-management-error-message {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 16px;
+    color: #b91c1c;
+    margin-bottom: 16px;
+}
+
+.policy-management-success-message {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    padding: 16px;
+    color: #047857;
+    margin-bottom: 16px;
+}
+
+/* Common section styles */
+.policy-section {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    padding: 10px;
+}
+
+.policy-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    cursor: pointer;
+    border-bottom: 1px solid #e2e8f0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 10px;
+
+}
+
+.policy-section-header:hover {
+    background-color: #f8fafc;
+}
+
+.policy-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.policy-section-content {
+    padding: 24px;
+    padding-top: 0; /* Adjust padding if needed to align with collapsible behavior */
+    /* Add animation for smooth collapse/expand */
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    overflow: hidden;
+}
+
+/* Grid layouts */
+.policy-grid-2-cols {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.policy-flex-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+
+@media (min-width: 768px) {
+    .policy-grid-2-cols {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.policy-grid-3-cols {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px; /* Added margin for separation */
+}
+
+@media (min-width: 768px) {
+    .policy-grid-3-cols {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Form elements */
+.policy-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.policy-input,
+.policy-select {
+    width: 60%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.policy-input:focus,
+.policy-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.policy-checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.policy-checkbox {
+    height: 16px;
+    width: 16px;
+    color: #2563eb;
+    border-color: #cbd5e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.policy-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Sub-sections within sections */
+.policy-subsection {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+}
+
+.policy-subsection-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 16px;
+}
+
+.policy-subsection-title-small {
+    font-size: 15px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+/* Application specific styles */
+.policy-section-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.policy-info-text {
+    font-size: 14px;
+    color: #718096;
+}
+
+.policy-add-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #10b981;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.policy-add-button:hover {
+    background-color: #059669;
+}
+
+.policy-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.policy-list-item {
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #fefefe;
+}
+
+.policy-list-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.policy-list-item-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.policy-delete-button {
+    color: #ef4444;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.policy-delete-button:hover {
+    color: #dc2626;
+}
+
+.policy-margin-bottom {
+    margin-bottom: 16px;
+}
+
+/* Permission grants specific styles */
+.policy-add-small-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #2563eb;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.policy-add-small-button:hover {
+    background-color: #1d4ed8;
+}
+
+.policy-list-container-small {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.policy-permission-grant-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.policy-input-flex-1 {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.policy-input-flex-1:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.policy-select-small {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.policy-select-small:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.policy-delete-small-button {
+    color: #ef4444;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.policy-delete-small-button:hover {
+    color: #dc2626;
+}
+
+/* No policy data message */
+.policy-no-data {
+    text-align: center;
+    color: #718096;
+    font-size: 18px;
+    margin-top: 32px;
+}
