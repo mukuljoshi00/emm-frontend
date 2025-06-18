@@ -24,9 +24,9 @@ interface Policy {
   installUnknownSourcesAllowed: boolean;
   debuggingFeaturesAllowed: boolean;
   usbMassStorageEnabled: boolean;
-  passwordQuality: 'ANY' | 'NUMERIC' | 'ALPHANUMERIC' | 'COMPLEX';
   wifiConfigType: 'NONE' | 'WPA2' | 'WPA3';
   permittedApps: PermittedApp[];
+  privateKeySelectionEnabled:boolean;
 }
 
 const initialPolicy: Policy = {
@@ -50,9 +50,10 @@ const initialPolicy: Policy = {
   installUnknownSourcesAllowed: false,
   debuggingFeaturesAllowed: false,
   usbMassStorageEnabled: false,
-  passwordQuality: 'ANY',
   wifiConfigType: 'NONE',
   permittedApps: [],
+  privateKeySelectionEnabled:false
+
 };
 
 const toggleFields: Array<keyof typeof initialPolicy> = [
@@ -77,7 +78,6 @@ const toggleFields: Array<keyof typeof initialPolicy> = [
 ];
 
 const enumFields = [
-  { key: 'passwordQuality', label: 'Password Quality', options: ['ANY', 'NUMERIC', 'ALPHANUMERIC', 'COMPLEX'] },
   { key: 'wifiConfigType', label: 'WiFi Config Type', options: ['NONE', 'WPA2', 'WPA3'] },
 ];
 

@@ -7,6 +7,7 @@ import EnterpriseList from './EnterpriseList';
 import { fetchOrgs, fetchMyOrg } from '../api/Api';
 import styles from './Dashboard.module.css';
 import PolicyUITab from './PolicyUITab';
+import EmployeeCard from './EmployeeCard';
 
 interface Organization {
   id: string;
@@ -112,7 +113,7 @@ const Dashboard: React.FC = () => {
           <PolicyUITab />
         )}
         {!isSuperAdmin && activeTab === 'users' && (
-          <PolicyUITab />
+          <EmployeeCard />
         )}
       </main>
     </div>

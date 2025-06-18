@@ -1,4 +1,5 @@
 // src/api/Api.tsx
+import { Employee } from '../components/EmployeeCard';
 import { API_BASE_URL } from './baseUrl';
 
 export async function fetchDevices(enterpriseName: string, token: string) {
@@ -15,7 +16,7 @@ export async function fetchDevices(enterpriseName: string, token: string) {
 }
 
 export async function fetchEnrollmentToken(enterpriseName: string, token: string, policyName = 'policy1') {
-  const res = await fetch(`${API_BASE_URL}/enterprise/enrollment-token?enterpriseName=${encodeURIComponent(enterpriseName)}&policyName=${encodeURIComponent(policyName)}`, {
+  const res = await fetch(`${API_BASE_URL}/device/onboard?enterpriseId=${encodeURIComponent(enterpriseName)}&policyName=${encodeURIComponent(policyName)}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -116,4 +117,19 @@ export async function login(email: string, password: string) {
   return response.json();
 }
 
+
+export async function fetchEmployee(): Promise<Employee[]> {
+  const response = await fetch(`${API_BASE_URL}/employee/all`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch employees');
+  }
+
+  return await response.json();
+}
 // Add more API functions here as needed, e.g. for login, organizations, policies, etc.
