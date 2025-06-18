@@ -8,6 +8,8 @@ import { fetchOrgs, fetchMyOrg } from '../api/Api';
 import styles from './Dashboard.module.css';
 import PolicyUITab from './PolicyUITab';
 import EmployeeCard from './EmployeeCard';
+import dashboardIcon from '../assets/nippon.png';
+
 
 interface Organization {
   id: string;
@@ -64,7 +66,9 @@ const Dashboard: React.FC = () => {
     <div className={styles.dashboardRoot}>
       <header className={styles.header}>
         <span className={styles.brand}>
-          {isSuperAdmin ? 'Admin Dashboard' : 'Dashboard'}
+        <span className={styles.logo}>
+          <img src={dashboardIcon} alt="Dashboard" width={130} height={40} />
+        </span>
         </span>
         <nav className={styles.nav}>
           {isSuperAdmin ? (

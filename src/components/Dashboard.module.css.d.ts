@@ -9,5 +9,6 @@ declare const styles: {
   userInfo: string;
   logoutBtn: string;
   policyUiHeader: string;
+  logo:string
 };
 export default styles;

@@ -21,6 +21,11 @@
   letter-spacing: 1px;
   font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
+
+.logo {
+
+}
+
 .nav {
   display: flex;
   gap: 1.5rem;
