@@ -233,7 +233,7 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
                       </span>
                     </div>
                     {/* Link Location Button Section - only show if location is empty and place just below location text */}
-                    {(() => {
+                    {/* {(() => {
                       const serial = device.hardwareInfo && device.hardwareInfo.serialNumber;
                       const loc = deviceLocations[serial];
                       // Only show if location is truly missing (null or not a number)
@@ -279,7 +279,7 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
                         );
                       }
                       return null;
-                    })()}
+                    })()} */}
                   </div>
                   {/* Software Info Section */}
                   {device.softwareInfo && Array.isArray(device.softwareInfo) && device.softwareInfo.length > 0 && (

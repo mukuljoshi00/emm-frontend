@@ -88,18 +88,18 @@ const listFields = [
 // ENUM OPTIONS (partial, extend as needed)
 const enumOptions = {
   defaultPermissionPolicy: ['PROMPT', 'GRANT', 'DENY'],
-  locationMode: ['LOCATION_MODE_UNSPECIFIED', 'HIGH_ACCURACY', 'SENSORS_ONLY', 'BATTERY_SAVING', 'OFF'],
-  appAutoUpdatePolicy: ['AUTO_UPDATE_POLICY_UNSPECIFIED', 'NEVER', 'WI_FI_ONLY', 'ALWAYS'],
+  locationMode: ['HIGH_ACCURACY','LOCATION_MODE_UNSPECIFIED',  'SENSORS_ONLY', 'BATTERY_SAVING', 'OFF'],
+  appAutoUpdatePolicy: ['WI_FI_ONLY','AUTO_UPDATE_POLICY_UNSPECIFIED', 'NEVER',  'ALWAYS'],
   encryptionPolicy: ['ENCRYPTION_POLICY_UNSPECIFIED', 'ENABLED_WITHOUT_PASSWORD', 'ENABLED_WITH_PASSWORD'],
   playStoreMode: ['WHITELIST', 'BLACKLIST', 'ALL_APPS'],
-  autoDateAndTimeZone: ['AUTO_DATE_AND_TIME_ZONE_UNSPECIFIED', 'AUTOMATIC', 'MANUAL'],
+  autoDateAndTimeZone: ['AUTOMATIC', 'AUTO_DATE_AND_TIME_ZONE_UNSPECIFIED', 'MANUAL'],
   cameraAccess: ['CAMERA_ACCESS_UNSPECIFIED', 'CAMERA_ACCESS_ALLOWED', 'CAMERA_ACCESS_BLOCKED'],
   microphoneAccess: ['MICROPHONE_ACCESS_UNSPECIFIED', 'MICROPHONE_ACCESS_ALLOWED', 'MICROPHONE_ACCESS_BLOCKED'],
-  credentialProviderPolicyDefault: ['CREDENTIAL_PROVIDER_POLICY_DEFAULT_UNSPECIFIED', 'ALLOW', 'DISALLOW'],
-  printingPolicy: ['PRINTING_POLICY_UNSPECIFIED', 'ALLOW', 'DISALLOW'],
-  assistContentPolicy: ['ASSIST_CONTENT_POLICY_UNSPECIFIED', 'ALLOW', 'DISALLOW'],
-  preferentialNetworkService: ['PREFERENTIAL_NETWORK_SERVICE_UNSPECIFIED', 'CELLULAR', 'WIFI'],
-  enterpriseDisplayNameVisibility: ['ENTERPRISE_DISPLAY_NAME_VISIBILITY_UNSPECIFIED', 'ALWAYS', 'NEVER'],
+  credentialProviderPolicyDefault: ['ALLOW','CREDENTIAL_PROVIDER_POLICY_DEFAULT_UNSPECIFIED',  'DISALLOW'],
+  printingPolicy: [ 'ALLOW','PRINTING_POLICY_UNSPECIFIED', 'DISALLOW'],
+  assistContentPolicy: ['ALLOW','ASSIST_CONTENT_POLICY_UNSPECIFIED',  'DISALLOW'],
+  preferentialNetworkService: ['CELLULAR','PREFERENTIAL_NETWORK_SERVICE_UNSPECIFIED',  'WIFI'],
+  enterpriseDisplayNameVisibility: ['ALWAYS','ENTERPRISE_DISPLAY_NAME_VISIBILITY_UNSPECIFIED',  'NEVER'],
 };
 
 // LIST OF ENUMS/STRINGS (partial, extend as needed)
@@ -324,7 +324,7 @@ const PolicyUITab: React.FC = () => {
           </div>
         ))}
         {/* List fields */}
-        {listFields.map(field => (
+        {/* {listFields.map(field => (
           <div key={field.key} style={{ width: '100%', margin: '1.2rem 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
               <span className={styles.formLabel}>{field.label}</span>
@@ -346,14 +346,14 @@ const PolicyUITab: React.FC = () => {
               </div>
             ))}
           </div>
-        ))}
+        ))} */}
         {/* ENUM FIELDS (Android Management API) */}
         {Object.entries(enumOptions).map(([key, options]) => (
           <div className={styles.formRow} key={key}>
             <label className={styles.formLabel}>{key}</label>
             <select
               className={styles.formInput}
-              value={policy[key as keyof typeof policy] as string || ''}
+              value={policy[key as keyof typeof policy] as string || (options as string[])[0]}
               onChange={e => setPolicy(prev => ({ ...prev, [key]: e.target.value }))}
             >
               <option value="" disabled>Select...</option>
@@ -365,7 +365,7 @@ const PolicyUITab: React.FC = () => {
         ))}
 
         {/* LIST OF ENUMS/STRINGS (Android Management API) */}
-        {listOfEnums.map(field => (
+        {/* {listOfEnums.map(field => (
           <div className={styles.formRow} key={field.key}>
             <label className={styles.formLabel}>{field.label}</label>
             <select
@@ -382,8 +382,8 @@ const PolicyUITab: React.FC = () => {
               ))}
             </select>
           </div>
-        ))}
-        {listOfStrings.map(field => (
+        ))} */}
+        {/* {listOfStrings.map(field => (
           <div className={styles.formRow} key={field.key}>
             <label className={styles.formLabel}>{field.label}</label>
             <input
@@ -415,10 +415,10 @@ const PolicyUITab: React.FC = () => {
               ))}
             </div>
           </div>
-        ))}
+        ))} */}
 
         {/* LIST OF OBJECTS (Android Management API) */}
-        {listOfObjects.map(field => (
+        {/* {listOfObjects.map(field => (
           <div key={field.key} style={{ width: '100%', margin: '1.2rem 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
               <span className={styles.formLabel}>{field.label}</span>
@@ -446,7 +446,7 @@ const PolicyUITab: React.FC = () => {
               </div>
             ))}
           </div>
-        ))}
+        ))} */}
       </form>
       <button style={{ marginTop: 24 }} onClick={() => setShowJson(j => !j)}>
         {showJson ? 'Hide Policy JSON' : 'Show Policy JSON'}
