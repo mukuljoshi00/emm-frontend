@@ -107,7 +107,7 @@ const EnterpriseList: React.FC<{ isSuperAdmin: boolean; activeTab: string; }> = 
                     <td style={{ padding: '1rem', color: '#374151' }}>{org.id}</td>
                     <td style={{ padding: '1rem', color: '#374151' }}>{org.cloudProjectId || '-'}</td>
                     <td style={{ padding: '1rem', color: '#374151' }}>{org.enterpriseName || '-'}</td>
-                    <td style={{ padding: '1rem', color: org.organizationStatus === 'ACTIVE' ? '#388e3c' : '#d32f2f', fontWeight: 600 }}>{org.organizationStatus || '-'}</td>
+                    <td style={{ padding: '1rem', color: org.organizationStatus === 'ACTIVE' ? '#1976d2' : '#1976d2', fontWeight: 600 }}>{org.organizationStatus || '-'}</td>
                   </tr>
                 ))}
               </tbody>

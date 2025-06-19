@@ -87,10 +87,10 @@ const Dashboard: React.FC = () => {
                 onClick={() => setActiveTab('policies')}
                 className={activeTab === 'policies' ? styles.tabActive : styles.tab}
               >Policies</span>
-              <span
+              {/* <span
                 onClick={() => setActiveTab('policyui')}
                 className={activeTab === 'policyui' ? styles.tabActive : styles.tab}
-              >Policy UI</span>
+              >Policy UI</span> */}
             <span
                 onClick={() => setActiveTab('users')}
                 className={activeTab === 'users' ? styles.tabActive : styles.tab}
@@ -111,11 +111,12 @@ const Dashboard: React.FC = () => {
           <DeviceList enterpriseName={orgs[0].enterpriseName} token={token} />
         )}
         {!isSuperAdmin && activeTab === 'policies' && orgs && orgs[0]?.enterpriseName && token && (
-          <PolicyManagement org={orgs[0]} token={token} />
-        )}
-        {!isSuperAdmin && activeTab === 'policyui' && (
+          // <PolicyManagement org={orgs[0]} token={token} />
           <PolicyUITab />
         )}
+        {/* {!isSuperAdmin && activeTab === 'policyui' && (
+          <PolicyUITab />
+        )} */}
         {!isSuperAdmin && activeTab === 'users' && (
           <EmployeeCard />
         )}

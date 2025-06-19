@@ -17,7 +17,7 @@
 .brand {
   font-weight: 700;
   font-size: 24px;
-  color: #009688;
+  color: #1976d2;
   letter-spacing: 1px;
   font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
@@ -33,7 +33,7 @@
 .tab {
   font-weight: 600;
   font-size: 18px;
-  color: #004d40;
+  color: #1976d2;
   border-bottom: 3px solid transparent;
   padding-bottom: 6px;
   cursor: pointer;
@@ -42,12 +42,12 @@
   transition: color 0.2s, border-bottom 0.2s;
 }
 .tabActive {
-  color: #009688;
-  border-bottom: 3px solid #009688;
+  color: #1976d2;
+  border-bottom: 3px solid #1976d2;
 }
 .tabSuperAdmin {
-  color: #009688;
-  border-bottom: 3px solid #009688;
+  color: #1976d2;
+  border-bottom: 3px solid #1976d2;
   font-weight: 600;
   font-size: 18px;
   padding-bottom: 6px;
@@ -56,15 +56,16 @@
 }
 .userInfo {
   margin-left: 2rem;
-  color: #004d40;
+  color: #1976d2;
   font-size: 15px;
   font-weight: 500;
-  background: #e0f2f1;
+  background: #e9eded;
   border-radius: 6px;
   padding: 0.4rem 1rem;
 }
 .logoutBtn {
-  background: linear-gradient(90deg, #009688 60%, #43a047 100%);
+  /* background: linear-gradient(90deg, #009688 60%, #43a047 100%); */
+  background:  #1976d2;;
   color: #fff;
   border: none;
   border-radius: 4px;
