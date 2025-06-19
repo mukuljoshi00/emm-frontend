@@ -126,7 +126,7 @@ const EmployeeCard: React.FC = () => {
         <table className="employee-table">
           <thead>
             <tr>
-              <th>User ID</th>
+              <th>ID</th>
               <th>Name</th>
               <th>Email</th>
               <th>Position</th>
