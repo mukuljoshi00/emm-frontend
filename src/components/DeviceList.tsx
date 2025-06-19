@@ -337,7 +337,7 @@ const DeviceList: React.FC<DeviceListProps> = ({ enterpriseName, token }) => {
                   <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
                     <button
                       className={styles.addDeviceBtn}
-                      style={{ fontSize: 13, padding: '4px 12px', borderRadius: 6, fontWeight: 600, backgroundColor: '#b3261e', color: '#fff', border: 'none', minWidth: 0, marginLeft: 0, lineHeight: 1.2 }}
+                      style={{ fontSize: 13, padding: '4px 12px', borderRadius: 6, fontWeight: 600, backgroundColor: '#3b3939', color: '#fff', border: 'none', minWidth: 0, marginLeft: 0, lineHeight: 1.2 }}
                       onClick={async () => {
                         // Parse enterpriseId and deviceId from device.name (format: 'enterprises/{enterpriseId}/devices/{deviceId}')
                         let enterpriseId = '';
