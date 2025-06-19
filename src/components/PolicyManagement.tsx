@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, Save, X, ChevronDown, ChevronUp } from 'lucide-react';
 import './PolicyManagement.css'; // Import the CSS file
-import { fetchPolicy } from '../api/Api';
+import { fetchPolicy, updatePolicy } from '../api/Api';
 
 
 interface PolicyManagementProps {
@@ -40,6 +40,7 @@ interface PolicyData {
   debuggingFeaturesAllowed?: boolean;
   defaultPermissionPolicy?: string;
   installUnknownSourcesAllowed?: boolean;
+  ensureVerifyAppsEnabled?: boolean;
   name?: string;
   persistentPreferredActivities?: PersistentPreferredActivity[];
   playStoreMode?: string;
@@ -48,7 +49,16 @@ interface PolicyData {
     softwareInfoEnabled?: boolean;
   };
   version?: number;
+
+  // 🔒 Additional Device Restriction Flags
+  cameraDisabled?: boolean;
+  addUserDisabled?: boolean;
+  installAppsDisabled?: boolean;
+  mountPhysicalMediaDisabled?: boolean;
+  uninstallAppsDisabled?: boolean;
+  removeUserDisabled?: boolean;
 }
+
 
 const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
   const [policy, setPolicy] = useState<PolicyData>({});
@@ -150,7 +160,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
   //   try {
   //     if (!org || !org.enterpriseName || !token) throw new Error('Missing organization or token');
 
-  //     // Mock API call - replace with your actual updatePolicy function
+  //     // Mock API call - replace with your actual updatePolicyLocal function
   //     await new Promise(resolve => setTimeout(resolve, 1500));
 
   //     setUpdateSuccess('Policy updated successfully!');
@@ -163,31 +173,61 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
   // };
 
   //TODO: Changes in format for update api call
+  // const handleUpdatePolicy = async () => {
+  // setUpdateLoading(true);
+  // setUpdateError('');
+  // setUpdateSuccess('');
+  // try {
+  //   if (!inputValue) throw new Error('Policy JSON cannot be empty');
+  //   if (!org || !org.enterpriseName || !token) throw new Error('Missing organization or token');
+  //   const parsed = JSON.parse(inputValue);
+  //   // Ensure version is a string if present
+  //   if (parsed && typeof parsed.version !== 'undefined') {
+  //     parsed.version = String(parsed.version);
+  //   }
+  //   await updatePolicyLocal(org.enterpriseName, token, parsed);
+  //   setUpdateSuccess('Policy updated successfully!');
+  //   setShowInput(false);
+  //   setInputValue('');
+  //   fetchPolicyData(); // Refresh the policy after successful update
+  // } catch (err: any) {
+  //   setUpdateError(err.message || 'Failed to update policy');
+  // } finally {
+  //   setUpdateLoading(false);
+  // }
+  // };
+
   const handleUpdatePolicy = async () => {
-    // setUpdateLoading(true);
-    // setUpdateError('');
-    // setUpdateSuccess('');
-    // try {
-    //   if (!inputValue) throw new Error('Policy JSON cannot be empty');
-    //   if (!org || !org.enterpriseName || !token) throw new Error('Missing organization or token');
-    //   const parsed = JSON.parse(inputValue);
-    //   // Ensure version is a string if present
-    //   if (parsed && typeof parsed.version !== 'undefined') {
-    //     parsed.version = String(parsed.version);
-    //   }
-    //   await updatePolicy(org.enterpriseName, token, parsed);
-    //   setUpdateSuccess('Policy updated successfully!');
-    //   setShowInput(false);
-    //   setInputValue('');
-    //   fetchPolicyData(); // Refresh the policy after successful update
-    // } catch (err: any) {
-    //   setUpdateError(err.message || 'Failed to update policy');
-    // } finally {
-    //   setUpdateLoading(false);
-    // }
+    setUpdateLoading(true);
+    setUpdateError('');
+    setUpdateSuccess('');
+
+    try {
+      if (!org || !org.enterpriseName || !token) {
+        throw new Error('Missing organization or token');
+      }
+
+      const policyToSend = { ...policy };
+
+      // Optional: Ensure version is a string
+      // if (policyToSend.version !== undefined) {
+      //   policyToSend.version = String(policyToSend.version);
+      // }
+      console.log("PTO =>>>", policyToSend);
+
+      await updatePolicy(org.enterpriseName, token, policyToSend);
+
+      setUpdateSuccess('Policy updated successfully!');
+      // setShowInput(false);
+      fetchPolicyData(); // Refresh policy
+    } catch (err: any) {
+      setUpdateError(err.message || 'Failed to update policy');
+    } finally {
+      setUpdateLoading(false);
+    }
   };
 
-  const updatePolicy = (path: string[], value: any) => {
+  const updatePolicyLocal = (path: string[], value: any) => {
     setPolicy(prev => {
       const newPolicy = { ...prev };
       let current: any = newPolicy;
@@ -201,6 +241,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
       return newPolicy;
     });
   };
+
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -313,7 +354,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
             <input
               type="text"
               value={policy.name || ''}
-              onChange={(e) => updatePolicy(['name'], e.target.value)}
+              onChange={(e) => updatePolicyLocal(['name'], e.target.value)}
               className="policy-input"
               placeholder="Policy name"
             />
@@ -321,9 +362,9 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
           <div>
             <label className="policy-label">Version</label>
             <input
-              type="number"
+              type="String"
               value={policy.version || 1}
-              onChange={(e) => updatePolicy(['version'], parseInt(e.target.value))}
+              onChange={(e) => updatePolicyLocal(['version'], (e.target.value))}
               className="policy-input"
             />
           </div>
@@ -349,7 +390,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                 <input
                   type="checkbox"
                   checked={policy.debuggingFeaturesAllowed || false}
-                  onChange={(e) => updatePolicy(['debuggingFeaturesAllowed'], e.target.checked)}
+                  onChange={(e) => updatePolicyLocal(['debuggingFeaturesAllowed'], e.target.checked)}
                   className="policy-checkbox"
                 />
               </div>
@@ -359,32 +400,126 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                 <input
                   type="checkbox"
                   checked={policy.installUnknownSourcesAllowed || false}
-                  onChange={(e) => updatePolicy(['installUnknownSourcesAllowed'], e.target.checked)}
+                  onChange={(e) => updatePolicyLocal(['installUnknownSourcesAllowed'], e.target.checked)}
                   className="policy-checkbox"
                 />
               </div>
             </div>
 
             {/* Permission Policy */}
-            <div className='policy-flex-row'>
-              <label className="policy-label">Default Permission Policy</label>
-              <select
-                value={policy.defaultPermissionPolicy || 'PROMPT'}
-                onChange={(e) => updatePolicy(['defaultPermissionPolicy'], e.target.value)}
-                className="policy-select"
-              >
-                <option value="PROMPT">Prompt User</option>
-                <option value="GRANT">Grant All</option>
-                <option value="DENY">Deny All</option>
-              </select>
+            <div className='policy-flex-column'>
+              {/* Default Permission Policy Dropdown */}
+              {policy?.defaultPermissionPolicy !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Default Permission Policy</label>
+                  <select
+                    value={policy.defaultPermissionPolicy || 'PROMPT'}
+                    onChange={(e) => updatePolicyLocal(['defaultPermissionPolicy'], e.target.value)}
+                    className="policy-select"
+                  >
+                    <option value="PROMPT">Prompt User</option>
+                    <option value="GRANT">Grant All</option>
+                    <option value="DENY">Deny All</option>
+                  </select>
+                </div>
+              )}
+
+              {policy?.cameraDisabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Camera Disabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.cameraDisabled}
+                    onChange={(e) => updatePolicyLocal(['cameraDisabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.addUserDisabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Add User Disabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.addUserDisabled}
+                    onChange={(e) => updatePolicyLocal(['addUserDisabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.installAppsDisabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Install Apps Disabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.installAppsDisabled}
+                    onChange={(e) => updatePolicyLocal(['installAppsDisabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.mountPhysicalMediaDisabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Mount Physical Media Disabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.mountPhysicalMediaDisabled}
+                    onChange={(e) => updatePolicyLocal(['mountPhysicalMediaDisabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.uninstallAppsDisabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Uninstall Apps Disabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.uninstallAppsDisabled}
+                    onChange={(e) => updatePolicyLocal(['uninstallAppsDisabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.removeUserDisabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Remove User Disabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.removeUserDisabled}
+                    onChange={(e) => updatePolicyLocal(['removeUserDisabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.ensureVerifyAppsEnabled !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Ensure Verify Apps Enabled</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.ensureVerifyAppsEnabled}
+                    onChange={(e) => updatePolicyLocal(['ensureVerifyAppsEnabled'], e.target.checked)}
+                  />
+                </div>
+              )}
+
+              {policy?.installUnknownSourcesAllowed !== undefined && (
+                <div className='policy-flex-row'>
+                  <label className="policy-label">Install Unknown Sources Allowed</label>
+                  <input
+                    type="checkbox"
+                    checked={policy.installUnknownSourcesAllowed}
+                    onChange={(e) => updatePolicyLocal(['installUnknownSourcesAllowed'], e.target.checked)}
+                  />
+                </div>
+              )}
             </div>
+
 
             {/* Play Store Mode */}
             <div className='policy-flex-row'>
               <label className="policy-label">Play Store Mode</label>
               <select
                 value={policy.playStoreMode || 'WHITELIST'}
-                onChange={(e) => updatePolicy(['playStoreMode'], e.target.value)}
+                onChange={(e) => updatePolicyLocal(['playStoreMode'], e.target.value)}
                 className="policy-select"
               >
                 <option value="WHITELIST">Whitelist</option>
@@ -400,7 +535,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                   <label className="policy-label">Developer Settings</label>
                   <select
                     value={policy.advancedSecurityOverrides?.developerSettings || 'DEVELOPER_SETTINGS_USER_CHOICE'}
-                    onChange={(e) => updatePolicy(['advancedSecurityOverrides', 'developerSettings'], e.target.value)}
+                    onChange={(e) => updatePolicyLocal(['advancedSecurityOverrides', 'developerSettings'], e.target.value)}
                     className="policy-select"
                   >
                     <option value="DEVELOPER_SETTINGS_USER_CHOICE">User Choice</option>
@@ -413,7 +548,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                   <label className="policy-label">Play Protect</label>
                   <select
                     value={policy.advancedSecurityOverrides?.googlePlayProtectVerifyApps || 'VERIFY_APPS_USER_CHOICE'}
-                    onChange={(e) => updatePolicy(['advancedSecurityOverrides', 'googlePlayProtectVerifyApps'], e.target.value)}
+                    onChange={(e) => updatePolicyLocal(['advancedSecurityOverrides', 'googlePlayProtectVerifyApps'], e.target.value)}
                     className="policy-select"
                   >
                     <option value="VERIFY_APPS_USER_CHOICE">User Choice</option>
@@ -426,7 +561,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                   <label className="policy-label">Untrusted Apps</label>
                   <select
                     value={policy.advancedSecurityOverrides?.untrustedAppsPolicy || 'DISALLOW_INSTALL'}
-                    onChange={(e) => updatePolicy(['advancedSecurityOverrides', 'untrustedAppsPolicy'], e.target.value)}
+                    onChange={(e) => updatePolicyLocal(['advancedSecurityOverrides', 'untrustedAppsPolicy'], e.target.value)}
                     className="policy-select"
                   >
                     <option value="DISALLOW_INSTALL">Disallow Install</option>
@@ -487,7 +622,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                         onChange={(e) => {
                           const newApps = [...(policy.applications || [])];
                           newApps[appIndex].packageName = e.target.value;
-                          updatePolicy(['applications'], newApps);
+                          updatePolicyLocal(['applications'], newApps);
                         }}
                         className="policy-input"
                         placeholder="com.example.app"
@@ -501,7 +636,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                         onChange={(e) => {
                           const newApps = [...(policy.applications || [])];
                           newApps[appIndex].installType = e.target.value;
-                          updatePolicy(['applications'], newApps);
+                          updatePolicyLocal(['applications'], newApps);
                         }}
                         className="policy-select"
                       >
@@ -518,7 +653,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                         onChange={(e) => {
                           const newApps = [...(policy.applications || [])];
                           newApps[appIndex].defaultPermissionPolicy = e.target.value;
-                          updatePolicy(['applications'], newApps);
+                          updatePolicyLocal(['applications'], newApps);
                         }}
                         className="policy-select"
                       >
@@ -551,7 +686,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                             onChange={(e) => {
                               const newApps = [...(policy.applications || [])];
                               newApps[appIndex].permissionGrants![grantIndex].permission = e.target.value;
-                              updatePolicy(['applications'], newApps);
+                              updatePolicyLocal(['applications'], newApps);
                             }}
                             className="policy-input-flex-1"
                             placeholder="android.permission.CAMERA"
@@ -561,7 +696,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                             onChange={(e) => {
                               const newApps = [...(policy.applications || [])];
                               newApps[appIndex].permissionGrants![grantIndex].policy = e.target.value;
-                              updatePolicy(['applications'], newApps);
+                              updatePolicyLocal(['applications'], newApps);
                             }}
                             className="policy-select-small"
                           >
@@ -604,7 +739,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                 <input
                   type="checkbox"
                   checked={policy.statusReportingSettings?.applicationReportsEnabled || false}
-                  onChange={(e) => updatePolicy(['statusReportingSettings', 'applicationReportsEnabled'], e.target.checked)}
+                  onChange={(e) => updatePolicyLocal(['statusReportingSettings', 'applicationReportsEnabled'], e.target.checked)}
                   className="policy-checkbox"
                 />
               </div>
@@ -614,7 +749,7 @@ const PolicyManagement: React.FC<PolicyManagementProps> = ({ org, token }) => {
                 <input
                   type="checkbox"
                   checked={policy.statusReportingSettings?.softwareInfoEnabled || false}
-                  onChange={(e) => updatePolicy(['statusReportingSettings', 'softwareInfoEnabled'], e.target.checked)}
+                  onChange={(e) => updatePolicyLocal(['statusReportingSettings', 'softwareInfoEnabled'], e.target.checked)}
                   className="policy-checkbox"
                 />
               </div>
